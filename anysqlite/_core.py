@@ -52,6 +52,7 @@ class Connection:
             self._real_connection.rollback, *args, **kwargs, limiter=self._limiter
         )
 
+    @copy_signature(sqlite3.Connection.cursor)
     async def cursor(self, *args, **kwargs) -> "Cursor":
         real_cursor = await to_thread.run_sync(
             self._real_connection.cursor, *args, **kwargs, limiter=self._limiter
