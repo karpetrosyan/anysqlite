@@ -152,7 +152,7 @@ class Cursor:
         )
 
     @copy_signature(sqlite3.Cursor.executemany)
-    async def executmany(self, *args, **kwargs):
+    async def executemany(self, *args, **kwargs):
         return await self._connection._execute(
             partial(self._real_cursor.executemany, *args, **kwargs)
         )
