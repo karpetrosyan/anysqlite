@@ -1,0 +1,92 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "anysqlite"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "U.N. Owen", email = "void@some.where" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "sniffio==1.*"
+]
+
+[project.urls]
+Issues = "https://github.com/karosis88/anysqlite/issues"
+Source = "https://github.com/karosis88/anysqlite"
+
+[tool.hatch.version]
+path = "anysqlite/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/anysqlite",
+    "/CHANGELOG.md",
+    "/README.md",
+]
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "CHANGELOG.md"
+
+[tool.mypy]
+strict = true
+show_error_codes = true
+warn_unused_ignores = false
+
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+
+[tool.pytest.ini_options]
+addopts = ["-rxXs", "--strict-config", "--strict-markers"]
+filterwarnings = []
+
+[tool.coverage.run]
+omit = [
+    "venv/*", 
+]
+include = ["anysqlite/*", "tests/*"]
+
+[tool.coverage.report]
+exclude_also = [
+  '__repr__',
+  'raise NotImplementedError()'
+]
+
+[tool.ruff]
+line-length = 120
+select = [
+    "E",
+    "F",
+    "W",
+    "I"
+]
+
+[tool.ruff.isort]
+combine-as-imports = true
