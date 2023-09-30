@@ -1,9 +1,10 @@
 import sqlite3
 import typing as tp
-from functools import partial, wraps
+from functools import partial
+from pathlib import Path
 
 from anyio import CapacityLimiter, to_thread
-from pathlib import Path
+
 
 class Connection:
     def __init__(self, _real_connection: sqlite3.Connection) -> None:
@@ -38,7 +39,11 @@ class Cursor:
         self._limiter = limiter
 
     @property
-    def description(self) -> tp.Union[tp.Tuple[tp.Tuple[str, None, None, None, None, None, None], ...], tp.Any]:
+    def description(
+        self,
+    ) -> tp.Union[
+        tp.Tuple[tp.Tuple[str, None, None, None, None, None, None], ...], tp.Any
+    ]:
         return self._real_cursor.description
 
     @property
@@ -50,9 +55,7 @@ class Cursor:
         return self._real_cursor.arraysize
 
     async def close(self) -> None:
-        await to_thread.run_sync(
-            self._real_cursor.close, limiter=self._limiter
-        )
+        await to_thread.run_sync(self._real_cursor.close, limiter=self._limiter)
 
     async def execute(self, sql: str, parameters: tp.Iterable[tp.Any] = ()) -> "Cursor":
         real_cursor = await to_thread.run_sync(
@@ -60,7 +63,9 @@ class Cursor:
         )
         return Cursor(real_cursor, self._limiter)
 
-    async def executemany(self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]) -> "Cursor":
+    async def executemany(
+        self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]
+    ) -> "Cursor":
         real_cursor = await to_thread.run_sync(
             self._real_cursor.executemany, sql, seq_of_parameters, limiter=self._limiter
         )
@@ -87,9 +92,10 @@ class Cursor:
             self._real_cursor.fetchall, limiter=self._limiter
         )
 
-async def connect(database: tp.Union[str, bytes, Path],
-                  **kwargs: tp.Any) -> "Connection":
-    
+
+async def connect(
+    database: tp.Union[str, bytes, Path], **kwargs: tp.Any
+) -> "Connection":
     kwargs["check_same_thread"] = False
     real_connection = await to_thread.run_sync(
         partial(sqlite3.connect, database, **kwargs)
