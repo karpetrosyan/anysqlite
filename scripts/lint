@@ -1,0 +1,4 @@
+#! /bin/bash -ex
+
+black anysqlite tests
+ruff --fix anysqlite tests
