@@ -11,6 +11,12 @@ class Connection:
         self._real_connection = _real_connection
         self._limiter = CapacityLimiter(1)
 
+    async def __aenter__(self) -> "Connection":
+        return self
+    
+    async def __aexit__(self, *args: tp.Any, **kwargs: tp.Any) -> None:
+        return await self.close()
+
     async def close(self) -> None:
         return await to_thread.run_sync(
             self._real_connection.close, limiter=self._limiter
@@ -32,6 +38,25 @@ class Connection:
         )
         return Cursor(real_cursor, self._limiter)
 
+    async def execute(self, sql: str, parameters: tp.Iterable[tp.Any] = ()) -> "Cursor":
+        real_cursor = await to_thread.run_sync(
+            self._real_connection.execute, sql, parameters, limiter=self._limiter
+        )
+        return Cursor(real_cursor, self._limiter)
+
+    async def executemany(
+        self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]
+    ) -> "Cursor":
+        real_cursor = await to_thread.run_sync(
+            self._real_connection.executemany, sql, seq_of_parameters, limiter=self._limiter
+        )
+        return Cursor(real_cursor, self._limiter)
+
+    async def executescript(self, sql_script: str) -> "Cursor":
+        real_cursor = await to_thread.run_sync(
+            self._real_connection.executescript, sql_script, limiter=self._limiter
+        )
+        return Cursor(real_cursor, self._limiter)
 
 class Cursor:
     def __init__(self, real_cursor: sqlite3.Cursor, limiter: CapacityLimiter) -> None:
