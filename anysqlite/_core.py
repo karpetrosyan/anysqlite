@@ -13,7 +13,7 @@ class Connection:
 
     async def __aenter__(self) -> "Connection":
         return self
-    
+
     async def __aexit__(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         return await self.close()
 
@@ -48,7 +48,10 @@ class Connection:
         self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]
     ) -> "Cursor":
         real_cursor = await to_thread.run_sync(
-            self._real_connection.executemany, sql, seq_of_parameters, limiter=self._limiter
+            self._real_connection.executemany,
+            sql,
+            seq_of_parameters,
+            limiter=self._limiter,
         )
         return Cursor(real_cursor, self._limiter)
 
@@ -57,6 +60,7 @@ class Connection:
             self._real_connection.executescript, sql_script, limiter=self._limiter
         )
         return Cursor(real_cursor, self._limiter)
+
 
 class Cursor:
     def __init__(self, real_cursor: sqlite3.Cursor, limiter: CapacityLimiter) -> None:
