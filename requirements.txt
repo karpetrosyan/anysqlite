@@ -1,8 +1,9 @@
 -e .
 
-black==23.9.1
-mypy==1.5.1
-pytest==7.4.2
-ruff==0.0.291
+black==26.5.1
+mypy==2.1.0
+pytest==9.0.3
+ruff==0.15.17
 trio>0.20.0
-hatch==1.7.0
+hatch==1.17.0
+typing-extensions==4.15.0

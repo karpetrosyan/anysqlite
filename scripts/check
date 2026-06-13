@@ -1,5 +1,5 @@
 #! /bin/bash -ex
 
 black --check --diff tests anysqlite
-ruff tests anysqlite
+ruff check tests anysqlite
 mypy tests anysqlite

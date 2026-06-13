@@ -70,9 +70,7 @@ class Cursor:
     @property
     def description(
         self,
-    ) -> tp.Union[
-        tp.Tuple[tp.Tuple[str, None, None, None, None, None, None], ...], tp.Any
-    ]:
+    ) -> tuple[tuple[str, None, None, None, None, None, None], ...] | tp.Any:
         return self._real_cursor.description
 
     @property
@@ -111,7 +109,7 @@ class Cursor:
             self._real_cursor.fetchone, limiter=self._limiter
         )
 
-    async def fetchmany(self, size: tp.Union[int, None] = 1) -> tp.Any:
+    async def fetchmany(self, size: int | None = 1) -> tp.Any:
         return await to_thread.run_sync(
             self._real_cursor.fetchmany, size, limiter=self._limiter
         )
@@ -123,7 +121,7 @@ class Cursor:
 
 
 async def connect(
-    database: tp.Union[str, bytes, Path], **kwargs: tp.Any
+    database: str | bytes | Path, **kwargs: tp.Any
 ) -> "Connection":
     kwargs["check_same_thread"] = False
     real_connection = await to_thread.run_sync(
