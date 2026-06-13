@@ -40,7 +40,10 @@ class Connection:
 
     async def execute(self, sql: str, parameters: tp.Iterable[tp.Any] = ()) -> "Cursor":
         real_cursor = await to_thread.run_sync(
-            self._real_connection.execute, sql, parameters, limiter=self._limiter
+            self._real_connection.execute,  # type: ignore[arg-type]
+            sql,
+            parameters,
+            limiter=self._limiter,
         )
         return Cursor(real_cursor, self._limiter)
 
@@ -48,7 +51,7 @@ class Connection:
         self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]
     ) -> "Cursor":
         real_cursor = await to_thread.run_sync(
-            self._real_connection.executemany,
+            self._real_connection.executemany,  # type: ignore[arg-type]
             sql,
             seq_of_parameters,
             limiter=self._limiter,
@@ -70,9 +73,7 @@ class Cursor:
     @property
     def description(
         self,
-    ) -> tp.Union[
-        tp.Tuple[tp.Tuple[str, None, None, None, None, None, None], ...], tp.Any
-    ]:
+    ) -> tuple[tuple[str, None, None, None, None, None, None], ...] | tp.Any:
         return self._real_cursor.description
 
     @property
@@ -88,7 +89,10 @@ class Cursor:
 
     async def execute(self, sql: str, parameters: tp.Iterable[tp.Any] = ()) -> "Cursor":
         real_cursor = await to_thread.run_sync(
-            self._real_cursor.execute, sql, parameters, limiter=self._limiter
+            self._real_cursor.execute,  # type: ignore[arg-type]
+            sql,
+            parameters,
+            limiter=self._limiter,
         )
         return Cursor(real_cursor, self._limiter)
 
@@ -96,7 +100,10 @@ class Cursor:
         self, sql: str, seq_of_parameters: tp.Iterable[tp.Iterable[tp.Any]]
     ) -> "Cursor":
         real_cursor = await to_thread.run_sync(
-            self._real_cursor.executemany, sql, seq_of_parameters, limiter=self._limiter
+            self._real_cursor.executemany,  # type: ignore[arg-type]
+            sql,
+            seq_of_parameters,
+            limiter=self._limiter,
         )
         return Cursor(real_cursor, self._limiter)
 
@@ -111,7 +118,7 @@ class Cursor:
             self._real_cursor.fetchone, limiter=self._limiter
         )
 
-    async def fetchmany(self, size: tp.Union[int, None] = 1) -> tp.Any:
+    async def fetchmany(self, size: int | None = 1) -> tp.Any:
         return await to_thread.run_sync(
             self._real_cursor.fetchmany, size, limiter=self._limiter
         )
@@ -122,9 +129,7 @@ class Cursor:
         )
 
 
-async def connect(
-    database: tp.Union[str, bytes, Path], **kwargs: tp.Any
-) -> "Connection":
+async def connect(database: str | bytes | Path, **kwargs: tp.Any) -> "Connection":
     kwargs["check_same_thread"] = False
     real_connection = await to_thread.run_sync(
         partial(sqlite3.connect, database, **kwargs)
